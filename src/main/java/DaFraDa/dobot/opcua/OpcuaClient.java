@@ -1,11 +1,10 @@
 package DaFraDa.dobot.opcua;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaMonitoredItem;
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscription;
@@ -25,7 +24,7 @@ import DaFraDa.dobot.database.Database;
 public class OpcuaClient {
 
 	private OpcUaClient client;
-	private String opcuaUrl = "opc.tcp://";
+	private String opcuaUrl = "opc.tcp://10.62.255.12:4840";
 	private AtomicReference<Double> temperatureCache;
 	private AtomicReference<Double> humidityCache;
 
@@ -38,12 +37,12 @@ public class OpcuaClient {
                     .createSubscription(1000.0).get();
 
             // Temperatur NodeId anpassen
-            NodeId tempNode = new NodeId(2, "Sensor.Temperature");
-            NodeId humNode = new NodeId(2, "Sensor.Humidity");
+            NodeId tempNode = new NodeId(2, "Raspi.FBS-Platine.sensor");
+            //NodeId humNode = new NodeId(2, "OPCUA_MUSTERPLATINE.FBS-Platine.sensor");
 
             // Temperatur überwachen
-            subscribeToNode(subscription, tempNode, "Temperatur");
-            subscribeToNode(subscription, humNode, "Luftfeuchtigkeit");
+            subscribeToNode(subscription, tempNode, "sensor");
+            //subscribeToNode(subscription, tempNode, "Luftfeuchtigkeit");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -64,26 +63,31 @@ public class OpcuaClient {
         BiConsumer<UaMonitoredItem, DataValue> listener = (item, value) -> {
             Object val = value.getValue().getValue();
             String nodeIdStr = item.getReadValueId().getNodeId().getIdentifier().toString();
+            System.out.println("Nodestring: " + nodeIdStr);
 
-            if (nodeIdStr.contains("Temperatur")) {
+            if (nodeIdStr.contains("Value")) {
                 temperatureCache.set(((Number) val).doubleValue());
+                System.out.println("Wert Temperatur :" + temperatureCache.get().toString());
             } else if (nodeIdStr.contains("Luftfeuchtigkeit")) {
                 humidityCache.set(((Number) val).doubleValue());
             }
 
-            if (temperatureCache.get() != null && humidityCache.get() != null) {
+            if (temperatureCache.get() != null ) {
+            	List<Object> dataToDb = new ArrayList<>();
+            	dataToDb.add(temperatureCache.get());
+                Database.writeDB("temperatur", dataToDb);
+            }
+            if (humidityCache.get() != null) {
             	List<Object> dataToDb = new ArrayList<>();
             	dataToDb.add(humidityCache.get());
-            	dataToDb.add(temperatureCache.get());
-                Database.writeDB("sensor_data", dataToDb);
+            	Database.writeDB("luftfeuchtigkeit", dataToDb);
             }
         };
 
         subscription.createMonitoredItems(
-            TimestampsToReturn.Both,
-            java.util.Collections.singletonList(request),
-            (items, results) -> ((Iterable<MonitoredItemCreateRequest>) items).forEach(item -> ((UaMonitoredItem) item).setValueConsumer((Consumer<DataValue>) listener))
-        ).get();
+        	    TimestampsToReturn.Both,
+        	    Collections.singletonList(request)
+        	).get();
     }
 
     public void stop() {

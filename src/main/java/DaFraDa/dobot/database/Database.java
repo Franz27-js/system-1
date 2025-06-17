@@ -15,7 +15,7 @@ import com.mongodb.client.MongoDatabase;
 
 public class Database {
 
-	private static String connectionString = "";
+	private static String connectionString = "mongodb://10.100.20.181:27017";
 	private static MongoClient mongoClient;
 	
 	static {
@@ -43,18 +43,20 @@ public class Database {
 	public static String writeDB(String collectionString, List<Object> data) {
 
 		try {
-            MongoDatabase sampleTrainingDB = mongoClient.getDatabase("Messdaten");
+            MongoDatabase sampleTrainingDB = mongoClient.getDatabase("Main");
             MongoCollection<Document>collection = sampleTrainingDB.getCollection(collectionString);
 		
 			Document doc = new Document("_id", new ObjectId());
 			doc.append("date", System.currentTimeMillis());
 			
-			if(collectionString == "sensor_data") {
-				doc.append("humidity", data.get(0))
-				.append("temperature", data.get(1));				
+			if(collectionString == "temperatur") {
+				doc.append("temperatur", data.get(0));				
 			}
-			else if (collectionString == "color_data") {
-				doc.append("color", data.get(0));
+			else if (collectionString == "luftfeuchtigkeit") {
+				doc.append("luftfeuchtigkeit", data.get(0));
+			}
+			else if (collectionString == "farbe") {
+				doc.append("farbe", data.get(0));
 			}
 			collection.insertOne(doc);
 		}

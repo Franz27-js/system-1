@@ -69,16 +69,16 @@ public class Camera {
         System.out.println("Gelbe Pixel: " + yellowPixels);
 
         // Schwellenwert für Erkennung
-        int threshold = 5000; // je nach Bildgröße anpassen
+        int threshold = 100; // je nach Bildgröße anpassen
 
-        if (redPixels > threshold) {
-            return "#FF0000";
+		if (yellowPixels > threshold) {
+			return "#FFFF00";
         } else if (greenPixels > threshold) {
             return "#00FF00";
         } else if (bluePixels > threshold) {
             return "#0000FF";
-        } else if (yellowPixels > threshold) {
-            return "#FFFF00";
+        } else if (redPixels > threshold) {
+            return "#FF0000";
         } else {
             return "none";
         }

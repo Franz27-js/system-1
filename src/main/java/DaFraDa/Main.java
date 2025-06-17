@@ -12,40 +12,40 @@ public class Main implements IMain{
 	@WebMethod
 	@Override
 	public String Homing() throws Exception {
-		DobotController.Homing();
-		return "";
+		String result = DobotController.Homing();
+		return result;
 	}
 	
 	@Override
 	@WebMethod
 	public String PTP(int x, int y, int z, int r) throws Exception {
-		DobotController.PTP(x, y, z, r);
-		return "";
+		String result = DobotController.PTP(x, y, z, r);
+		return result;
 	}
 	
 	@Override
 	@WebMethod
 	public String StartDobotProgram() throws Exception {
-		DobotController.StartDobotProgram();
-		return "";
+		String result = DobotController.StartDobotProgram();
+		return result;
 	}
 
 	@Override
 	public String SetEndeffectorSuction(boolean enable, boolean suction) {
-		DobotController.SetEndEffectorSuction(enable, suction);
-		return "";
+		String result = DobotController.SetEndEffectorSuction(enable, suction);
+		return result;
 	}
 
 	@Override
 	public String GetPosition() {
-		DobotController.GetPosition();
-		return "";
+		String result = DobotController.GetPosition();
+		return result;
 	}
 
 	@Override
 	public String CameraTest() {
-		Camera.CalculateColor();
-		return "";
+		String result = Camera.CalculateColor();
+		return result;
 	}
 	
 	
